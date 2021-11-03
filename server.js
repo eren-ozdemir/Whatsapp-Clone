@@ -31,12 +31,14 @@ fs.readFile("./log.json", "utf8", (err, jsonString) => {
 
 //socket.io
 io.on("connection", (socket) => {
-  console.log(socket.id);
   socket.on("setSocketId", (userId) => {
     users.map((u) => {
       if (u.id === userId) u.socketId = socket.id;
     });
+    saveUsers();
   });
+
+  //Add User
   socket.on("addId", (id) => {
     let user = {
       socketId: socket.id,
@@ -45,23 +47,25 @@ io.on("connection", (socket) => {
       friendIds: [],
     };
     users.push(user);
-    saveUsers(socket);
+    saveUsers();
   });
 
   socket.on("addFriend", (userId, friendId, friendName) => {
     userIndex = users.findIndex((u) => u.id == userId);
     friendIndex = users.findIndex((u) => u.id == friendId);
-    //Check friend exists
+    //Check friend existence
     if (friendIndex !== -1) {
       users[userIndex].friendIds.push(friendId);
       users[friendIndex].friendIds.push(userId);
-      saveUsers(socket);
+      console.log(users[friendIndex].socketId);
+      saveUsers();
+      io.to(users[friendIndex].socketId).emit("friendAdded");
     }
   });
 
   socket.on("disconnect", async () => {
     console.log("Disconnected", socket.id);
-    saveUsers(socket);
+    saveUsers();
   });
 });
 
@@ -69,7 +73,6 @@ function saveUsers(socket) {
   fs.writeFile("./log.json", JSON.stringify(users), (err) => {
     if (err) console.log("Error writing file:", err);
   });
-  socket.emit("updateUsers", users);
 }
 
 server.listen(3001, () => console.log("Server started"));
