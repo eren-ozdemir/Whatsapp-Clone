@@ -1,0 +1,24 @@
+GET http://localhost:3001/user
+
+###
+GET http://localhost:3001/user/617c51c7fe746eb79db70d77
+
+###
+POST http://localhost:3001/user
+Content-Type: application/json
+
+{
+    "name": "Eren Özdemir",
+    "status":false
+}
+
+###
+DELETE http://localhost:3001/user/617c51c7fe746eb79db70d77
+
+###
+PATCH http://localhost:3001/user?socketId=617c51c7fe746eb79db70d77
+Content-Type: application/json
+
+{
+    "name": "Özdemir"
+}
