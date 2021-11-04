@@ -1,1 +1,46 @@
-[{"socketId":"589XzWryMrHh4W5SAAAH","id":"e456ea35-715f-405f-b8e5-96ad89c3fbd6","name":null,"friendIds":["edc8d559-a1e6-4e94-b8c1-eee692c36aaf"]},{"socketId":"w8ESuVeZ5iuB36P7AAAJ","id":"edc8d559-a1e6-4e94-b8c1-eee692c36aaf","name":null,"friendIds":["e456ea35-715f-405f-b8e5-96ad89c3fbd6"]},{"socketId":"wwCZGNl6OtQeULEVAAAL","id":"a3bf320e-7f80-4f6a-be75-4d8def1ad7df","name":null,"friendIds":["6e4d569d-7591-4870-a21c-daa5e5530c1b"]},{"socketId":"TWWBVCUSfQEKK99EAAAN","id":"6e4d569d-7591-4870-a21c-daa5e5530c1b","name":null,"friendIds":["a3bf320e-7f80-4f6a-be75-4d8def1ad7df"]}]
+[
+  {
+    "socketId": "venfQpJjlV0LHH6uAAAB",
+    "id": "d9e961a6-ccc2-428b-9475-9e2d3bdbd238",
+    "name": null,
+    "friends": [
+      { "id": "6dde06f5-0c73-49b4-9692-ba4a45e0016b", "name": null },
+      { "id": "6dde06f5-0c73-49b4-9692-ba4a45e0016b", "name": null },
+      { "id": "6dde06f5-0c73-49b4-9692-ba4a45e0016b", "name": null }
+    ]
+  },
+  {
+    "socketId": "jK57Dw0o6M05TOJhAAAD",
+    "id": "6dde06f5-0c73-49b4-9692-ba4a45e0016b",
+    "name": null,
+    "friends": [
+      { "id": "d9e961a6-ccc2-428b-9475-9e2d3bdbd238", "name": "Opera" },
+      { "id": "d9e961a6-ccc2-428b-9475-9e2d3bdbd238", "name": "Opera" },
+      { "id": "d9e961a6-ccc2-428b-9475-9e2d3bdbd238", "name": "Opera" }
+    ]
+  },
+  {
+    "socketId": "YJ06mqkGxsEAkZXoAAAH",
+    "id": "06aff968-345f-42e9-a2f3-6f4c71398397",
+    "nickNames": null,
+    "friends": [
+      {
+        "id": "44a905a9-5270-47fd-bb62-99d2b7c74506",
+        "name": null,
+        "chatId": "59df6d70-8ee4-45cf-8a55-72810de28d14"
+      }
+    ]
+  },
+  {
+    "socketId": "MTxPJ277wgsKZ_riAAAF",
+    "id": "44a905a9-5270-47fd-bb62-99d2b7c74506",
+    "nickNames": null,
+    "friends": [
+      {
+        "id": "06aff968-345f-42e9-a2f3-6f4c71398397",
+        "name": "Gizem",
+        "chatId": "59df6d70-8ee4-45cf-8a55-72810de28d14"
+      }
+    ]
+  }
+]
