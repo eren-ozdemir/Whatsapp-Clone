@@ -10,6 +10,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const fs = require("fs");
 const { v4: uuidV4 } = require("uuid");
+const e = require("express");
 let users = [];
 let chatLog = [];
 
@@ -103,8 +104,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("setChat", (socketId, userId, friendId) => {
-    const user = users.find((u) => u.id === userId);
-    const friendUnderUser = user.friends.find((f) => f.id === friendId);
+    const user = findUserById(userId);
+    const friendUnderUser = findInFriendsById(user, friendId);
     const chatId = friendUnderUser.chatId;
     const log = chatLog.find((log) => log.chatId == chatId);
     if (log) {
@@ -117,8 +118,14 @@ io.on("connection", (socket) => {
     if (log) log.messages.push(msg);
     saveChatLog();
     const friend = users.find((f) => f.id === friendId);
-    console.log(msg);
     io.to(friend.socketId).emit("receiveMessage", chatId, msg);
+  });
+
+  socket.on("rename", (socketId, userId, friendId, newName) => {
+    const user = findUserById(userId);
+    const friendUnderUser = findInFriendsById(user, friendId);
+    friendUnderUser.name = newName;
+    saveUserLog();
   });
 
   socket.on("disconnect", async () => {
@@ -126,6 +133,14 @@ io.on("connection", (socket) => {
     saveUserLog();
   });
 });
+
+const findUserById = (id) => {
+  return users.find((u) => u.id === id);
+};
+
+const findInFriendsById = (user, id) => {
+  return user.friends.find((f) => f.id === id);
+};
 
 server.listen(3001, () => console.log("Server started"));
 reload(app);
