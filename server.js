@@ -59,6 +59,7 @@ io.on("connection", (socket) => {
     users.map((u) => {
       if (u.id === userId) u.socketId = socket.id;
     });
+
     saveUserLog();
   });
 
@@ -128,6 +129,10 @@ io.on("connection", (socket) => {
     saveUserLog();
   });
 
+  socket.on("getLastMessages", (socketId, userId) => {
+    getLastMessages(socketId, userId);
+  });
+
   socket.on("disconnect", async () => {
     console.log("Disconnected", socket.id);
     saveUserLog();
@@ -140,6 +145,22 @@ const findUserById = (id) => {
 
 const findInFriendsById = (user, id) => {
   return user.friends.find((f) => f.id === id);
+};
+
+const getLastMessages = (socketId, userId) => {
+  const user = findUserById(userId);
+  let chatIdArr = [];
+  let lastMessages = [];
+  if (user) user.friends.map((f) => chatIdArr.push(f.chatId));
+  chatLog.map((log) => {
+    if (chatIdArr.includes(log.chatId)) {
+      const len = Object.keys(log.messages).length;
+      const lastMsg = log.messages[len - 1];
+      lastMessages.push(lastMsg);
+      console.log(lastMessages);
+    }
+  });
+  io.to(socketId).emit("getLastMessages", lastMessages);
 };
 
 server.listen(3001, () => console.log("Server started"));
