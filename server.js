@@ -59,7 +59,7 @@ io.on("connection", (socket) => {
     users.map((u) => {
       if (u.id === userId) u.socketId = socket.id;
     });
-
+    io.emit("userConnected", userId);
     saveUserLog();
   });
 
@@ -69,9 +69,20 @@ io.on("connection", (socket) => {
       socketId: socket.id,
       id: id,
       nickNames: null,
+      status: "",
       friends: [],
     };
     users.push(user);
+    saveUserLog();
+  });
+
+  socket.on("setStatus", (userId, status) => {
+    users.map((u) => {
+      if (u.id === userId) {
+        u.status = status;
+      }
+    });
+    console.log(status);
     saveUserLog();
   });
 
@@ -112,6 +123,9 @@ io.on("connection", (socket) => {
     if (log) {
       io.to(socketId).emit("loadMessages", chatId, log.messages);
     }
+    const friendStatus = findUserById(friendId).status;
+    console.log(friendStatus);
+    io.to(socketId).emit("setFriendStatus", friendStatus);
   });
 
   socket.on("sendMessage", (chatId, friendId, msg) => {
@@ -131,6 +145,14 @@ io.on("connection", (socket) => {
 
   socket.on("getLastMessages", (socketId, userId) => {
     getLastMessages(socketId, userId);
+  });
+
+  socket.on("disconnecting", () => {
+    let user = users.find((u) => u.socketId === socket.id);
+    if (user) {
+      user.status = "offline";
+      io.emit("userDisconnected", user.id);
+    }
   });
 
   socket.on("disconnect", async () => {
