@@ -4,13 +4,16 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const path = require("path");
-const cors = require("cors"); //Allows server and client communicate from same machine
+const cors = require("cors");
 const reload = require("reload");
-const { Server } = require("socket.io");
-const io = new Server(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
 const fs = require("fs");
 const { v4: uuidV4 } = require("uuid");
-const e = require("express");
 let users = [];
 let chatLog = [];
 
@@ -124,7 +127,6 @@ io.on("connection", (socket) => {
       io.to(socketId).emit("loadMessages", chatId, log.messages);
     }
     const friendStatus = findUserById(friendId).status;
-    console.log(friendStatus);
     io.to(socketId).emit("setFriendStatus", friendStatus);
   });
 
@@ -150,7 +152,7 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", () => {
     let user = users.find((u) => u.socketId === socket.id);
     if (user) {
-      user.status = "offline";
+      user.status = false;
       io.emit("userDisconnected", user.id);
     }
   });
