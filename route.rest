@@ -1,10 +1,10 @@
-GET http://localhost:3001/user
+GET http://localhost:3001/users
 
 ###
-GET http://localhost:3001/user/617c51c7fe746eb79db70d77
+GET http://localhost:3001/users/e33a3abc-55b5-4932-ba87-675b115210a6
 
 ###
-POST http://localhost:3001/user
+POST http://localhost:3001/users
 Content-Type: application/json
 
 {
@@ -16,9 +16,9 @@ Content-Type: application/json
 DELETE http://localhost:3001/user/617c51c7fe746eb79db70d77
 
 ###
-PATCH http://localhost:3001/user?socketId=617c51c7fe746eb79db70d77
+PATCH http://localhost:3001/users/e33a3abc-55b5-4932-ba87-675b115210a6
 Content-Type: application/json
 
 {
-    "name": "Özdemir"
+    "status": true
 }

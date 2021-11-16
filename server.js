@@ -1,191 +1,152 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const mongoose = require("mongoose");
 const http = require("http");
 const server = http.createServer(app);
 const path = require("path");
 const cors = require("cors");
-const reload = require("reload");
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
   },
 });
-const fs = require("fs");
 const { v4: uuidV4 } = require("uuid");
-let users = [];
-let chatLog = [];
+const User = require("./models/User");
+const ChatLog = require("./models/ChatLog");
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
 app.use(express.json());
 
-app.get("/users", (req, res) => {
-  res.send(users);
-});
+const usersRouter = require("./routes/usersRoute");
+app.use("/users", usersRouter);
 
-//Read User Log File
-fs.readFile("./logs/userLog.json", "utf8", (err, jsonString) => {
-  if (err) {
-    console.log("File read failed:", err);
-    return;
+//Database connection
+mongoose.connect(process.env.DB_URI, { useNewUrlParser: true });
+const db = mongoose.connection;
+db.on("error", (error) => console.log(error));
+db.once("open", (error) => console.log("Connected to Database"));
+
+const findUserById = async (_userId) => {
+  try {
+    return await User.findOne({ userId: _userId });
+  } catch (err) {
+    return err;
   }
-  if (jsonString != "") users = JSON.parse(jsonString);
-});
-
-//Read Chat Log File
-fs.readFile("./logs/chatLog.json", "utf8", (err, jsonString) => {
-  if (err) {
-    console.log("File read failed:", err);
-    return;
-  }
-  if (jsonString != "") chatLog = JSON.parse(jsonString);
-});
-
-function saveUserLog() {
-  fs.writeFile("./logs/userLog.json", JSON.stringify(users), (err) => {
-    if (err) console.log("Error writing file:", err);
-  });
-}
-
-function saveChatLog() {
-  fs.writeFile("./logs/chatLog.json", JSON.stringify(chatLog), (err) => {
-    if (err) console.log("Error writing file:", err);
-  });
-}
+};
 
 //socket.io
 io.on("connection", (socket) => {
-  socket.on("setSocketId", (userId) => {
-    users.map((u) => {
-      if (u.id === userId) u.socketId = socket.id;
-    });
-    io.emit("userConnected", userId);
-    saveUserLog();
-  });
-
-  //Add User
-  socket.on("addId", (id) => {
-    let user = {
+  //Create New User
+  socket.on("addId", async (_id) => {
+    let user = new User({
       socketId: socket.id,
-      id: id,
-      nickNames: null,
-      status: "",
+      userId: _id,
+      status: true,
       friends: [],
-    };
-    users.push(user);
-    saveUserLog();
-  });
-
-  socket.on("setStatus", (userId, status) => {
-    users.map((u) => {
-      if (u.id === userId) {
-        u.status = status;
-      }
     });
-    console.log(status);
-    saveUserLog();
+    await user.save();
   });
 
-  socket.on("addFriend", (userId, friendId, friendName) => {
-    userIndex = users.findIndex((u) => u.id == userId);
-    friendIndex = users.findIndex((u) => u.id == friendId);
-    //Check friend existence
-    if (friendIndex !== -1) {
+  //Update Socket ID
+  socket.on("setSocketId", async (_userId) => {
+    await User.findOneAndUpdate({ userId: _userId }, { socketId: socket.id });
+    io.to(socket.id).emit("updateSocket", socket.id);
+    io.emit("userConnected", _userId);
+  });
+
+  //Set user status online
+  socket.on("setStatusOnline", async (_userId) => {
+    await User.findOneAndUpdate({ userId: _userId }, { status: true });
+  });
+
+  //Add Friend
+  socket.on("addFriend", async (_userId, _friendId, _friendName) => {
+    let user = await findUserById(_userId);
+    let friend = await findUserById(_friendId);
+    const isFriend = user.friends.find((f) => f.friendId === _friendId);
+    if (friend) {
       const chatId = uuidV4();
-      const isFriend = users[userIndex].friends.find((f) => f.id === friendId);
       if (!isFriend) {
-        users[userIndex].friends.push({
-          id: friendId,
-          name: friendName,
+        console.log("not friend");
+        user.friends.push({
+          friendId: _friendId,
+          name: _friendName,
           chatId: chatId,
         });
-
-        users[friendIndex].friends.push({
-          id: userId,
+        friend.friends.push({
+          friendId: _userId,
           name: null,
           chatId: chatId,
         });
-        console.log(users[friendIndex].socketId);
-        saveUserLog();
+        await ChatLog.create({ chatId: chatId, messages: [] });
+        user.save();
+        friend.save();
+        io.to(user.socketId).emit("friendAdded");
+        io.to(friend.socketId).emit("friendAdded");
       }
-      //Create Chat Log
-      chatLog.push({ chatId: chatId, messages: [] });
-      saveChatLog();
-      io.to(users[friendIndex].socketId).emit("friendAdded");
     }
   });
 
-  socket.on("setChat", (socketId, userId, friendId) => {
-    const user = findUserById(userId);
-    const friendUnderUser = findInFriendsById(user, friendId);
-    const chatId = friendUnderUser.chatId;
-    const log = chatLog.find((log) => log.chatId == chatId);
-    if (log) {
-      io.to(socketId).emit("loadMessages", chatId, log.messages);
+  //Open Chat
+  socket.on("setChat", async (_socketId, _userId, _friendId) => {
+    const user = await findUserById(_userId);
+    if (user) {
+      const chatId = user.friends.find((f) => f.friendId === _friendId).chatId;
+      const log = await ChatLog.findOne({ chatId: chatId });
+      if (log) {
+        io.to(_socketId).emit("loadMessages", chatId, log.messages);
+      }
+      const friend = await User.findOne({ userId: _friendId });
+      const friendStatus = friend.status;
+      io.to(_socketId).emit("setFriendStatus", friendStatus);
     }
-    const friendStatus = findUserById(friendId).status;
-    io.to(socketId).emit("setFriendStatus", friendStatus);
   });
 
-  socket.on("sendMessage", (chatId, friendId, msg) => {
-    let log = chatLog.find((log) => log.chatId === chatId);
-    if (log) log.messages.push(msg);
-    saveChatLog();
-    const friend = users.find((f) => f.id === friendId);
-    io.to(friend.socketId).emit("receiveMessage", chatId, msg);
+  //Send Message
+  socket.on("sendMessage", async (_chatId, _friendId, _msg) => {
+    let log = await ChatLog.findOne({ chatId: _chatId });
+    if (log) log.messages.push(_msg);
+    log.save();
+    const friend = await findUserById(_friendId);
+    io.to(friend.socketId).emit("receiveMessage", _chatId, _msg);
   });
 
-  socket.on("rename", (socketId, userId, friendId, newName) => {
-    const user = findUserById(userId);
-    const friendUnderUser = findInFriendsById(user, friendId);
-    friendUnderUser.name = newName;
-    saveUserLog();
+  //Change friend name
+  socket.on("rename", async (_userId, _friendId, _newName) => {
+    const user = await findUserById(_userId);
+    const friendOfUser = user.friends.find((f) => f.friendId === _friendId);
+    friendOfUser.name = _newName;
+    user.save();
   });
 
-  socket.on("getLastMessages", (socketId, userId) => {
-    getLastMessages(socketId, userId);
+  //Get last messages of friends
+  socket.on("getLastMessages", async (_socketId, _userId) => {
+    const user = await findUserById(_userId);
+    let chatIdArr = [];
+    let lastMessages = [];
+    if (user) user.friends.map((f) => chatIdArr.push(f.chatId));
+    chatIdArr.map(async (c, i, arr) => {
+      const log = await ChatLog.findOne({ chatId: c });
+      const msg = log.messages[log.messages.length - 1];
+      lastMessages.push(msg);
+      if (i === arr.length - 1) {
+        console.log(lastMessages);
+        io.to(_socketId).emit("setLastMessages", lastMessages);
+      }
+    });
   });
 
-  socket.on("disconnecting", () => {
-    let user = users.find((u) => u.socketId === socket.id);
+  //Set friend status offline and emit it
+  socket.on("disconnect", async () => {
+    let user = await User.findOne({ socketId: socket.id });
     if (user) {
       user.status = false;
-      io.emit("userDisconnected", user.id);
+      user.save();
     }
-  });
-
-  socket.on("disconnect", async () => {
-    console.log("Disconnected", socket.id);
-    saveUserLog();
   });
 });
 
-const findUserById = (id) => {
-  return users.find((u) => u.id === id);
-};
-
-const findInFriendsById = (user, id) => {
-  return user.friends.find((f) => f.id === id);
-};
-
-const getLastMessages = (socketId, userId) => {
-  const user = findUserById(userId);
-  let chatIdArr = [];
-  let lastMessages = [];
-  if (user) user.friends.map((f) => chatIdArr.push(f.chatId));
-  chatLog.map((log) => {
-    if (chatIdArr.includes(log.chatId)) {
-      const len = Object.keys(log.messages).length;
-      const lastMsg = log.messages[len - 1];
-      lastMessages.push(lastMsg);
-      console.log(lastMessages);
-    }
-  });
-  io.to(socketId).emit("getLastMessages", lastMessages);
-};
-
 server.listen(3001, () => console.log("Server started"));
-reload(app);
