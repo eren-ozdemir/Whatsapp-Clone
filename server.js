@@ -29,6 +29,7 @@ const db = mongoose.connection;
 db.on("error", (error) => console.log(error));
 db.once("open", (error) => console.log("Connected to Database"));
 
+//Fnd user by userId
 const findUserById = async (_userId) => {
   try {
     return await User.findOne({ userId: _userId });
