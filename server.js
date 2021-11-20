@@ -18,10 +18,16 @@ const ChatLog = require("./models/ChatLog");
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+//User Router
 const usersRouter = require("./routes/usersRoute");
 app.use("/users", usersRouter);
+
+//Photos Router
+const photosRouter = require("./routes/photosRoute");
+app.use("/photos", photosRouter);
 
 //Database connection
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true });
@@ -47,7 +53,7 @@ io.on("connection", (socket) => {
       userId: _id,
       defaultName: "",
       about: "",
-      profilePicture: "",
+      profilePhoto: "",
       status: true,
       friends: [],
     });
@@ -139,6 +145,13 @@ io.on("connection", (socket) => {
         io.to(_socketId).emit("setLastMessages", lastMessages);
       }
     });
+  });
+
+  socket.on("updateProfilePictureUrl", async (_userId, _newUrl) => {
+    const user = await findUserById(_userId);
+    user.profilePhoto = _newUrl;
+    user.save();
+    io.to(user.socketId).emit("updateUser");
   });
 
   //Set friend status offline and emit it

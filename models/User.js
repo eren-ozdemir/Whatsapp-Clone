@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
   userId: String,
   socketId: String,
-  name: String,
+  defaultName: String,
+  about: String,
+  profilePhoto: String,
   status: Boolean,
   friends: Array,
 });
