@@ -45,6 +45,9 @@ io.on("connection", (socket) => {
     let user = new User({
       socketId: socket.id,
       userId: _id,
+      defaultName: "",
+      about: "",
+      profilePicture: "",
       status: true,
       friends: [],
     });
@@ -71,7 +74,6 @@ io.on("connection", (socket) => {
     if (friend) {
       const chatId = uuidV4();
       if (!isFriend) {
-        console.log("not friend");
         user.friends.push({
           friendId: _friendId,
           name: _friendName,
@@ -134,7 +136,6 @@ io.on("connection", (socket) => {
       const msg = log.messages[log.messages.length - 1];
       lastMessages.push(msg);
       if (i === arr.length - 1) {
-        console.log(lastMessages);
         io.to(_socketId).emit("setLastMessages", lastMessages);
       }
     });
