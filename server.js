@@ -76,17 +76,17 @@ io.on("connection", (socket) => {
   socket.on("addFriend", async (_userId, _friendId, _friendName) => {
     let user = await findUserById(_userId);
     let friend = await findUserById(_friendId);
-    const isFriend = user.friends.find((f) => f.friendId === _friendId);
+    const isFriend = user.friends.find((f) => f.userId === _friendId);
     if (friend) {
       const chatId = uuidV4();
       if (!isFriend) {
         user.friends.push({
-          friendId: _friendId,
+          userId: _friendId,
           name: _friendName,
           chatId: chatId,
         });
         friend.friends.push({
-          friendId: _userId,
+          userId: _userId,
           name: null,
           chatId: chatId,
         });
@@ -103,7 +103,7 @@ io.on("connection", (socket) => {
   socket.on("setChat", async (_socketId, _userId, _friendId) => {
     const user = await findUserById(_userId);
     if (user) {
-      const chatId = user.friends.find((f) => f.friendId === _friendId).chatId;
+      const chatId = user.friends.find((f) => f.userId === _friendId).chatId;
       const log = await ChatLog.findOne({ chatId: chatId });
       if (log) {
         io.to(_socketId).emit("loadMessages", chatId, log.messages);
@@ -126,9 +126,12 @@ io.on("connection", (socket) => {
   //Change friend name
   socket.on("rename", async (_userId, _friendId, _newName) => {
     const user = await findUserById(_userId);
-    const friendOfUser = user.friends.find((f) => f.friendId === _friendId);
-    friendOfUser.name = _newName;
-    user.save();
+    user.friends.map((f) => {
+      if (f.userId === _friendId) {
+        f.name = _newName;
+      }
+    });
+    await User.findOneAndUpdate({ userId: _userId }, { friends: user.friends });
   });
 
   //Get last messages of friends
@@ -152,6 +155,25 @@ io.on("connection", (socket) => {
     user.profilePhoto = _newUrl;
     user.save();
     io.to(user.socketId).emit("updateUser");
+  });
+
+  socket.on("getFriendsDatas", async (_userId) => {
+    const user = await findUserById(_userId);
+    let friendsDatas = [];
+    if (user) {
+      user.friends.map(async (_friend) => {
+        const friend = await findUserById(_friend.userId);
+        let copyFriend = {
+          userId: friend.userId,
+          defaultName: friend.defaultName,
+          about: friend.about,
+          profilePhoto: friend.profilePhoto,
+        };
+
+        friendsDatas.push(copyFriend);
+        io.to(user.socketId).emit("getFriendsDatas", friendsDatas);
+      });
+    }
   });
 
   //Set friend status offline and emit it

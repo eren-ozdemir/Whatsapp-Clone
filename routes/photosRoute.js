@@ -8,9 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_SECRET,
 });
 
-// router.get("/", async(req,res)=>{
-//     const {}
-// })
+router.get("/:photoId", async (req, res) => {});
 
 //Crete One
 router.post("/", async (req, res) => {
@@ -20,7 +18,7 @@ router.post("/", async (req, res) => {
       fileStr,
       "testPreset"
     );
-    console.log("Profile Photo Uploaded: ", uploadedResponse.url);
+    console.log("Profile Photo Uploaded: ", uploadedResponse);
     res.json({ newUrl: uploadedResponse.url });
   } catch (err) {
     console.error(err);
