@@ -176,6 +176,27 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("updateDefaultName", async (_userId, _newDefaultName) => {
+    try {
+      await User.findOneAndUpdate(
+        { userId: _userId },
+        { defaultName: _newDefaultName }
+      );
+      console.log("Default Name Updated, ", "User ID: ", _userId);
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
+  socket.on("updateAbout", async (_userId, _newAbout) => {
+    try {
+      await User.findOneAndUpdate({ userId: _userId }, { about: _newAbout });
+      console.log("About Updated, ", "User ID: ", _userId);
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
   //Set friend status offline and emit it
   socket.on("disconnect", async () => {
     let user = await User.findOne({ socketId: socket.id });
