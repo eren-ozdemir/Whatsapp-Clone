@@ -44,6 +44,13 @@ const findUserById = async (_userId) => {
   }
 };
 
+//Notify friends about status
+const notifyFriendsAboutStatus = async (_user, _status) => {
+  _user.friends.map(async (_friend) => {
+    const friend = await User.findOne({ userId: _friend.userId });
+    io.to(friend.socketId).emit("setFriendStatus", _user.userId, _status);
+  });
+};
 //socket.io
 io.on("connection", (socket) => {
   //Create New User
@@ -69,7 +76,14 @@ io.on("connection", (socket) => {
 
   //Set user status online
   socket.on("setStatusOnline", async (_userId) => {
-    await User.findOneAndUpdate({ userId: _userId }, { status: true });
+    let user = await User.findOne({ userId: _userId });
+    try {
+      user.status = true;
+      await user.save();
+      notifyFriendsAboutStatus(user, true);
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   //Add Friend
@@ -82,16 +96,16 @@ io.on("connection", (socket) => {
       if (!isFriend) {
         user.friends.push({
           userId: _friendId,
-          name: _friendName,
+          name: _friendName ? _friendName : friend.defaultName,
           chatId: chatId,
         });
         friend.friends.push({
           userId: _userId,
-          name: null,
+          name: user.defaultName ? user.defaultName : user.id,
           chatId: chatId,
         });
         await ChatLog.create({ chatId: chatId, messages: [] });
-        user.save();
+        await user.save();
         friend.save();
         io.to(user.socketId).emit("friendAdded");
         io.to(friend.socketId).emit("friendAdded");
@@ -110,7 +124,7 @@ io.on("connection", (socket) => {
       }
       const friend = await User.findOne({ userId: _friendId });
       const friendStatus = friend.status;
-      io.to(_socketId).emit("setFriendStatus", friendStatus);
+      io.to(_socketId).emit("setFriendStatus", _friendId, friendStatus);
     }
   });
 
@@ -139,15 +153,20 @@ io.on("connection", (socket) => {
     const user = await findUserById(_userId);
     let chatIdArr = [];
     let lastMessages = [];
-    if (user) user.friends.map((f) => chatIdArr.push(f.chatId));
-    chatIdArr.map(async (c, i, arr) => {
-      const log = await ChatLog.findOne({ chatId: c });
-      const msg = log.messages[log.messages.length - 1];
-      lastMessages.push(msg);
-      if (i === arr.length - 1) {
-        io.to(_socketId).emit("setLastMessages", lastMessages);
-      }
-    });
+    if (user && user.friends.length) {
+      user.friends.map((f) => chatIdArr.push(f.chatId));
+      chatIdArr.map(async (current, i, arr) => {
+        const log = await ChatLog.findOne({ chatId: current });
+        const msg = log.messages[log.messages.length - 1];
+        lastMessages.push(msg);
+        if (!arr) io.to(_socketId).emit("setLastMessages", lastMessages);
+        if (i === arr.length - 1)
+          io.to(_socketId).emit("setLastMessages", lastMessages);
+      });
+    } else {
+      //No Friend
+      io.to(_socketId).emit("setLastMessages", lastMessages);
+    }
   });
 
   socket.on("updateProfilePictureUrl", async (_userId, _newUrl) => {
@@ -157,11 +176,11 @@ io.on("connection", (socket) => {
     io.to(user.socketId).emit("updateUser");
   });
 
-  socket.on("getFriendsDatas", async (_userId) => {
+  socket.on("getFriendsDatas", async (_socketId, _userId) => {
     const user = await findUserById(_userId);
     let friendsDatas = [];
-    if (user) {
-      user.friends.map(async (_friend) => {
+    if (user && user.friends.length) {
+      user.friends.map(async (_friend, i, arr) => {
         const friend = await findUserById(_friend.userId);
         let copyFriend = {
           userId: friend.userId,
@@ -169,10 +188,15 @@ io.on("connection", (socket) => {
           about: friend.about,
           profilePhoto: friend.profilePhoto,
         };
-
         friendsDatas.push(copyFriend);
-        io.to(user.socketId).emit("getFriendsDatas", friendsDatas);
+        if (arr) console.log(arr);
+        if (i === arr.length - 1) {
+          io.to(_socketId).emit("getFriendsDatas", friendsDatas);
+        }
       });
+    } else {
+      //No Friend
+      io.to(_socketId).emit("getFriendsDatas", friendsDatas);
     }
   });
 
@@ -200,9 +224,12 @@ io.on("connection", (socket) => {
   //Set friend status offline and emit it
   socket.on("disconnect", async () => {
     let user = await User.findOne({ socketId: socket.id });
-    if (user) {
+    try {
       user.status = false;
-      user.save();
+      await user.save();
+      notifyFriendsAboutStatus(user, false);
+    } catch (err) {
+      console.log(err);
     }
   });
 });
