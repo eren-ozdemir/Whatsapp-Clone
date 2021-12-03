@@ -124,7 +124,13 @@ io.on("connection", (socket) => {
       }
       const friend = await User.findOne({ userId: _friendId });
       const friendStatus = friend.status;
-      io.to(_socketId).emit("setFriendStatus", _friendId, friendStatus);
+      //Check if they are friend
+      const isFriend = friend.friends.find((u) => u.userId === _userId);
+      if (isFriend) {
+        io.to(_socketId).emit("setFriendStatus", _friendId, friendStatus);
+      } else {
+        io.to(_socketId).emit("notFriend");
+      }
     }
   });
 
@@ -146,6 +152,19 @@ io.on("connection", (socket) => {
       }
     });
     await User.findOneAndUpdate({ userId: _userId }, { friends: user.friends });
+  });
+
+  socket.on("deleteChat", async (_userId, _friendId) => {
+    let user = await findUserById(_userId);
+    user.friends = user.friends.filter((friend) => friend.userId !== _friendId);
+    await user.save();
+    let friend = await findUserById(_friendId);
+    friend.friends.map((user) => {
+      if (user.userId === _userId) user.deleted = true;
+    });
+    await friend.save();
+    io.to(friend.socketId).emit("deletedByFriend", _userId);
+    console.log("User " + _userId + " deleted friend " + _friendId);
   });
 
   //Get last messages of friends
