@@ -5,6 +5,7 @@ const message = {
   content: String,
   date: Date,
   chatId: String,
+  isMedia: Boolean,
 };
 
 const chatLogSchema = new mongoose.Schema({
