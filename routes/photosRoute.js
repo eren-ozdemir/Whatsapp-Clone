@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
       fileStr,
       "testPreset"
     );
-    console.log("Profile Photo Uploaded");
+    console.log("Photo Uploaded");
     res.json({ newUrl: uploadedResponse.url });
   } catch (err) {
     console.error(err);

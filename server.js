@@ -120,6 +120,8 @@ io.on("connection", (socket) => {
       const chatId = user.friends.find((f) => f.userId === _friendId).chatId;
       const log = await ChatLog.findOne({ chatId: chatId });
       if (log) {
+        const medias = log.messages.filter((msg) => msg.isMedia);
+        io.to(_socketId).emit("setMedias", medias);
         io.to(_socketId).emit("loadMessages", chatId, log.messages);
       }
       const friend = await User.findOne({ userId: _friendId });
@@ -208,7 +210,6 @@ io.on("connection", (socket) => {
           profilePhoto: friend.profilePhoto,
         };
         friendsDatas.push(copyFriend);
-        if (arr) console.log(arr);
         if (i === arr.length - 1) {
           io.to(_socketId).emit("getFriendsDatas", friendsDatas);
         }
