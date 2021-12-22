@@ -53,6 +53,24 @@ const notifyFriendsAboutStatus = async (_user, _status) => {
 };
 //socket.io
 io.on("connection", (socket) => {
+  socket.on("login", async (_user, _socketId) => {
+    let user = await findUserById(_user.sub);
+    if (!user) {
+      //Create User
+      user = new User({
+        socketId: socket.id,
+        userId: _user.sub,
+        defaultName: _user.given_name || "",
+        about: "",
+        profilePhoto: _user.picture || "",
+        status: true,
+        friends: [],
+      });
+      await user.save();
+    }
+    io.to(_socketId).emit("setUserId", user);
+  });
+
   //Create New User
   socket.on("addId", async (_id) => {
     let user = new User({
