@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const PORT = process.env.PORT || 3001;
 const mongoose = require("mongoose");
 const http = require("http");
 const server = http.createServer(app);
@@ -272,4 +273,4 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(3001, () => console.log("Server started"));
+server.listen(PORT, () => console.log("Server started"));
