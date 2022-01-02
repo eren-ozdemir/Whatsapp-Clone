@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm rub build --prefix client"
+    "heroku": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "dependencies": {
     "cloudinary": "^1.27.1",
