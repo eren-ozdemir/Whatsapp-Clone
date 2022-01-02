@@ -1,0 +1,824 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap")
+
+$light-gray: rgb(50,55,57)
+$dark-gray: rgb(42,47,50)
+$darker-gray: #1E2428
+$wp-blue: rgb(19,28,33)
+$wp-green: #75b29b
+$icon-color: rgb(176,179,181) 
+$icon-disabled: rgb(50,55,57)
+$icon-size: 1.4em
+$msg-sent: rgb(61, 99, 98)
+$msg-received: rgb(38, 45, 49)
+$text-color: #d6d6d6
+$secondary-text-color: #A8AAAC
+$friend-height: 70px
+$left-col-width: 30%
+$right-col-width: 70%
+$header-height: 7%
+$transparent-bg: rgba(19,28,33, 0.97)
+
+@mixin flex()
+    display: flex
+    justify-content: space-between
+    align-items: center
+    vertical-align: middle
+    height: 100%
+    width: 100%
+
+*
+    box-sizing: border-box
+    margin: 0
+    padding: 0
+
+body,html,#root
+    @include flex()
+    justify-content: center
+    font-family: "Poppins", sans-serif
+    background-color: #090E11
+    color: $text-color
+    user-select: none
+
+*::-webkit-scrollbar 
+    width: 6px;
+    height: 6px
+
+*::-webkit-scrollbar-track
+    background: rgba(0,0,0,0)
+
+*::-webkit-scrollbar-thumb
+    background-color: rgba(57,64,69,0.7)
+
+.login-form
+    display: flex
+    flex-wrap: wrap
+
+.login-form input
+    width: 100%
+
+.btn
+    background-color: $msg-sent
+    border: none
+    color: $text-color
+    height: 40px
+    text-align: center
+    padding: 5px
+    margin-right: 5px
+    cursor: pointer
+
+    &:hover
+        background-color: $msg-received
+
+.btn-red
+    background-color: firebrick
+
+.user-id
+    position: fixed
+    bottom: 0
+    left: 0
+    
+.container
+    @include flex()
+    flex-wrap: wrap
+    background-color: $dark-gray
+    height: 910px
+    width: 1400px
+    position: relative
+    overflow: hidden
+
+.chat-placeholder
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    text-align: center
+    position: absolute
+    top: 0
+    right: 0
+    height: 100%
+    width: $right-col-width
+    background-image: url("media/pattern.png")
+    z-index: 1
+    border-bottom: 5px solid #283C45
+
+    img
+        height: 250px
+        width: 250px
+
+.header
+    @include flex()
+    background-color: $dark-gray
+    height: $header-height
+
+#user-header
+    width: $left-col-width
+    border-right: 1px solid rgb(64, 68, 71)
+
+#friend-header
+    width: $right-col-width
+
+.header-user-info
+    display: flex
+   
+
+
+.profile-photo-container
+    width: 50px
+    align-self: center
+    margin: 0 10px
+    padding: 0 5px
+
+.header img
+    width: 40px
+    height: 40px
+    position: relative
+.header-icons
+    display: flex
+
+
+.profile-photo
+    border-radius: 50%
+    height: 50px
+    width: 50px
+
+
+.secondary-text
+    color: $secondary-text-color
+    font-size: 0.8em
+
+.icon 
+    color: $icon-color
+    height: $icon-size
+    width: $icon-size
+    vertical-align: middle
+    margin: 0 1em
+    cursor: pointer
+
+.icon-disabled
+    color: $icon-disabled
+
+.chat
+    height: calc(100% - 60px)
+    width: $right-col-width
+    background-image: url("media/wallpaper.png")
+    display: flex
+    flex-direction: column
+
+.friends
+    @include flex()
+    background-color: $wp-blue
+    border-right: 1px solid rgb(64, 68, 71)
+    width: $left-col-width
+    height: calc(100% - 60px)
+    flex-direction: column 
+    justify-content: flex-start
+    overflow-y: scroll
+
+.friend-container
+    display: flex
+    width: 100%
+    position: relative
+
+    &:hover
+        .downArrow
+            display: initial
+            position: absolute
+            bottom: 20px
+            right: 20px
+
+.downArrow
+    display: none
+    transition: all 1s 
+
+.friend
+    @include flex()
+    height: $friend-height
+    &:hover
+        background-color: $light-gray
+    &:active
+        background-color: $dark-gray
+
+.friend .left
+    display: flex
+    height: $friend-height
+    width: 70px
+    padding: 0 15px
+    align-items: center
+
+.friend .right
+    display: flex
+    flex-direction: column
+    justify-content: flex-end
+    height: $friend-height
+    width: calc( 100% - 70px )
+    padding-right: 20px
+
+    >div
+        padding-left: 10px
+
+.friend .up
+    @include flex()
+    align-items: flex-end
+
+.friend .down
+    @include flex()
+    align-items: flex-start
+
+    div
+        display: flex
+        align-items: center
+
+        p
+            margin-left: 5px
+
+.last-msg-prew, .last-msg-time
+    font-size: 0.8em
+    color: $secondary-text-color
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+    max-width: 200px
+
+    
+
+.receivedFrom
+    border: 1px solid firebrick
+
+form
+    width: 100%
+    padding: 7px 10px
+    border-bottom: 1px solid $light-gray
+
+input
+    background-color: $light-gray
+    border-radius: 20px
+    color: white
+    height: 35px
+    outline: none
+    border: none
+    padding: 0 20px
+    width: 100%
+
+.search
+    width: 100%
+
+.msg-box
+    @include flex()
+    background-color: $darker-gray
+    height: 60px
+    z-index: 900
+
+.msg-box > .msg-input 
+    flex-grow: 1
+    background-color: $darker-gray
+    border-radius: 20px
+    color: white
+    height: 35px
+    outline: none
+    border: none
+    padding: 0 20px
+    width: 100%
+    display: in
+
+
+.react-emoji
+    background-color: $darker-gray
+    
+
+    .react-input-emoji--container
+        background-color: $light-gray
+        border-color: $darker-gray !important
+        color: $text-color
+        order: 2
+
+.react-emoji-picker--container
+    width: 100%
+
+.react-emoji-picker--wrapper
+    margin-bottom: 2px
+    width: 100% !important
+
+.react-emoji-picker
+    width: 100%
+
+.emoji-mart
+    background-color: $darker-gray !important
+    border: $darker-gray !important
+    width: 100% !important
+
+    span
+        background-color: $darker-gray !important
+        color: $text-color
+
+.emoji-mart-search input
+    border: 1px solid $darker-gray !important
+
+.emoji-mart-scroll
+    scroll-behavior: smooth
+
+.emoji-mart-category-label
+    background-color: $darker-gray !important
+
+.emoji-mart-anchor
+    color: $icon-color !important
+
+.emoji-mart-anchor-selected
+    color: $text-color !important
+    border-bottom: 3px solid $wp-green !important
+
+.emoji-mart-category button
+    width: 45px
+    height: 45px
+    
+    span
+        width: 32px !important
+        height: 32px !important
+
+    &:hover
+        span
+            background-color: $darker-gray !important
+            cursor: pointer
+
+        &::before
+            background-color: $darker-gray !important
+
+.disabled
+    background-color: $darker-gray
+    border: 1px solid $light-gray
+    font-style: italic
+
+.messages
+    height: 100%
+    display: flex
+    flex-direction: column
+    padding: 0 40px
+    overflow-y: scroll
+
+.msg
+    padding: 0 5px
+    border-radius: 10px
+    display: flex
+    flex-direction: column
+    margin-top: 5px
+    font-size: 14.2px
+    width: max-content
+    justify-content: center
+    align-items: center
+    word-wrap: break-word
+    flex-wrap: wrap
+
+    img
+        padding-top: 5px
+        max-height: 200px
+        max-width: 100%
+        border-radius: 10px
+
+
+.content
+    max-width: 100%
+
+.sent
+    max-width: 80%
+    background-color: $msg-sent
+    align-self: end
+    
+
+.received
+    max-width: 80%
+    background-color: $msg-received
+
+.msg-time
+    align-self: flex-end
+
+
+.dropdown
+    position: fixed
+    overflow: hidden
+    display: flex
+    flex-direction: column
+    align-items: left
+    background-color: $dark-gray
+    transform-origin: top left
+    z-index: 999
+
+.menu-item
+    padding: 0 50px 0 10px
+    
+    &:hover
+        background-color: $light-gray
+
+
+.rename
+    background-color: $transparent-bg
+    position: fixed
+    top: 0
+    left: 0
+    height: 100%
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+
+.profile-settings
+    display: flex
+    flex-direction: column
+    position: absolute
+    top: 0
+    height: 100%
+    width: $left-col-width
+    background-color: $wp-blue
+    z-index: 999
+    border-right: 1px solid $light-gray
+    overflow-y: auto
+
+    .icon
+        height: 16px
+
+.profile-settings-header
+    display: flex
+    flex-direction: column
+    background-color: $light-gray
+    height: 108px
+    justify-content: flex-end
+    padding: 0
+    position: sticky
+    top: 0
+    z-index: 999
+
+.profile-settings-header div
+    height: 59px
+    width: 100%
+    display: flex
+    align-items: center
+
+.profile-settings-photo-container
+    position: relative
+    height: 200px
+    width: 100%
+    display: flex
+    justify-content: center
+    align-items: center
+    margin: 5px 0
+    flex-direction: column
+    padding: 10px 0
+
+    
+    .profile-photo
+        width: 200px
+        height: 200px
+        border-radius: 50%
+        position: relative
+        &:hover
+            .change
+                visibility: visible
+        
+        img
+            border-radius: 50%
+            width: 200px
+            height: 200px
+            position: absolute
+            z-index: 0
+
+
+        .change
+            position: absolute
+            height: 200px
+            width: 200px
+            background-color: #0000008f  
+            border-radius: 50%
+            display: flex
+            flex-direction: column
+            justify-content: center
+            align-items: center
+            text-align: center
+            visibility: hidden
+            cursor: pointer
+
+            
+            .icon
+                color: white
+                height: 20px
+            
+input[type="file"]
+    display: none
+
+#upload-profile-photo
+    height: 200px
+    width: 200px
+    border-radius: 50%
+    position: absolute
+    display: flex
+    justify-content: center
+    background-color: #00000000
+
+.editable-settings
+    display: flex
+    justify-content: space-between
+    border-bottom: 2px solid #00000000
+    input
+        background-color: #00000000
+        border-radius: 0
+        padding-left: 0
+        font-size: 16px
+
+
+.editable-input
+    border-bottom: 2px solid $wp-green
+
+.logout
+    margin-bottom: 20px
+
+.title
+    color: #009688
+    font-size: 14px
+    
+.settings-form
+    padding: 30px 20px 10px
+    border: none
+    box-shadow: 0px 2px 2px #0000002a
+    display: flex
+    flex-direction: column
+    justify-content: center
+        
+.default-name-text
+    padding: 30px 20px 10px
+    font-size: 14px
+    color: $secondary-text-color
+
+
+.friend-profile-settings
+    display: flex
+    flex-direction: column
+    position: absolute
+    top: 0
+    right: 0
+    height: 100%
+    width: $right-col-width
+    background-color: #0D1418
+    z-index: 1
+
+    .icon
+        height: 16px
+
+
+.friend-info
+    display: flex
+    flex-direction: column
+    justify-content: center
+    width: 100%
+    padding: 10px 0
+
+    
+    div 
+        text-align: center
+
+.friend-profile-info
+    background-color: $wp-blue
+    box-shadow: 5px 5px 5px #000
+
+.friend-name
+    font-size: 20px
+.friend-userId
+    color: $secondary-text-color
+
+.friend-profile-header 
+    background-color: $dark-gray
+    height: $header-height
+    z-index: 1
+    
+
+.info-section
+    background-color: $wp-blue
+    width: 100%
+    margin-bottom: 10px
+    box-shadow: 3px 3px 3px #00000041
+    padding: 20px 30px
+    z-index: -5
+
+.popup-container
+    background-color: $transparent-bg
+    position: fixed
+    top: 0
+    left: 0
+    height: 100%
+    width: 100%
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
+    z-index: 999
+    
+.popup-form
+    position: relative
+    width: 50%
+    background-color: $dark-gray
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: column
+    z-index: 999
+    margin: 100px
+    padding: 100px
+    box-sizing: border-box
+    
+
+    input 
+        margin: 5px
+
+        &:focus
+            border: 1px solid $wp-green
+
+    .icon
+        position: absolute
+        margin: 0
+        top: 5px 
+        right: 5px
+
+
+.name
+    overflow: hidden
+    white-space: nowrap
+    text-overflow: ellipsis
+    max-width: 200px
+
+
+.file-preview-container
+    height: 200px
+    width: 100%
+    background-color: $dark-gray
+    display: flex
+    justify-content: center
+    align-items: center
+
+    img
+        height: 100px
+        width: 100px
+
+
+.media-review-container
+    display: flex
+    flex-direction: column
+    position: fixed
+    top: 0
+    left: 0
+    height: 100%
+    width: 100%
+    background-color: $transparent-bg
+    z-index: 999
+    justify-content: center
+    align-items: center
+    
+
+
+.review
+    display: flex
+    height: calc( 100% - 160px )
+    justify-content: space-between
+    align-items: center
+    width: 100%
+    padding: 0 20px
+    
+
+    img
+        height: auto
+        width: auto
+        max-height: 90%
+        max-width: calc( 100% - 150px )
+
+
+.medias
+    height: 100px
+    width: 100%
+    border-top: 1px solid $light-gray
+    justify-content: center
+    align-items: center
+    overflow-y: hidden
+
+
+    img
+        margin-left: 5px
+        width: 70px
+        height: 70px
+        flex-order: 1
+
+    .current-thumbnail
+        border: 3px solid $light-gray 
+        height: 60px
+        width: 60px
+    
+    .thumbnail-container
+        width: calc(16*80px + 15* 5px + 100vw)
+        height: 100%
+        display: flex
+        justify-content: center
+        align-items: center
+        overflow-: hidden
+  
+.review
+    .icon
+        width: 40px 
+        height: 40px 
+        background-color: $light-gray
+        border-radius: 50%
+
+.review-header
+    display: flex
+    width: 100%
+    height: 60px
+    justify-content: space-between
+    align-items: center
+    padding: 0 20px
+
+    img
+        height: 40px
+        width: 40px
+        border-radius: 50%
+
+.review-header-user-info
+    display: flex
+
+.review-info
+    margin-left: 10px
+
+
+.bottom-button
+    background-color: $dark-gray
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    position: absolute
+    bottom: 70px
+    right: 20px
+    display: flex
+    justify-content: center
+    align-items: center
+    padding: 5px
+    z-index: 800
+
+    svg
+        width: 100%
+        height: 100%
+        color: $icon-color
+
+
+.search-messages-container
+    height: 100%
+    width: $right-col-width
+    background-color: $wp-blue
+    position: absolute
+    right: 0
+    border-top: 1px solid $light-gray
+    z-index: 900
+
+.result
+    border-bottom: 1px solid $light-gray
+    padding-left: 20px
+    
+    div
+        display: flex
+        align-items: center
+    
+    &:hover
+        background-color: $light-gray
+
+.not-found
+    margin: auto
+
+
+
+@media only screen and (max-width: 1450px) 
+    .container 
+        height: 100%
+        width: 100%;
+    
+    .header 
+        height: 10%
+
+    #user-header
+        width: 35%
+
+    #friend-header
+        width: 65%
+    
+    .friends
+        width: 35%
+        height: 90%
+    
+    .chat 
+        width: 65%
+        height: 90%
+
+    .profile-settings
+        width: 35%
+
+    .friend-profile-settings
+        width: 65%
+    
+    .friend-profile-header
+        height: 10%
+    
+    .chat-placeholder
+        width: 65%
+
+    .search-messages-container
+        width: 65%
