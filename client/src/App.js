@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 import { useState } from "react";
 import { useEffect } from "react";
 
-const socket = io("http://localhost:3001");
+const socket = io("/");
 
 function App() {
   const [userId, setUserId] = useState();

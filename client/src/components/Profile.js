@@ -37,7 +37,7 @@ const Profile = ({
   const uploadImage = async (base64EncodedImage) => {
     try {
       const res = await axios.post(
-        "http://localhost:3001/photos",
+        "/photos",
         JSON.stringify({ data: base64EncodedImage }),
         {
           headers: { "Content-Type": "application/json" },

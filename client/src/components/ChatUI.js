@@ -70,7 +70,7 @@ const ChatUI = ({ userId, socket }) => {
   //Get users from server
   async function fetchAllUsers() {
     try {
-      const res = await axios.get("http://localhost:3001/users");
+      const res = await axios.get("/users");
       setUsers(res.data);
     } catch (err) {
       console.error(err);
@@ -79,7 +79,7 @@ const ChatUI = ({ userId, socket }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/users/" + userId);
+      const res = await axios.get("/users/" + userId);
       setUser(res.data);
     } catch (err) {
       console.error(err);
@@ -295,7 +295,7 @@ const ChatUI = ({ userId, socket }) => {
   const uploadImage = async (base64EncodedImage) => {
     try {
       const res = await axios.post(
-        "http://localhost:3001/photos",
+        "/photos",
         JSON.stringify({ data: base64EncodedImage }),
         {
           headers: { "Content-Type": "application/json" },
