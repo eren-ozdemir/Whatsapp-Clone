@@ -16,11 +16,16 @@ const { v4: uuidV4 } = require("uuid");
 const User = require("./models/User");
 const ChatLog = require("./models/ChatLog");
 
-app.use(express.static(path.join(__dirname, "client", "build")));
+app.use(express.static(path.join(__dirname, "client", "public", "index.html")));
+console.log(path.join(__dirname, "client", "public", "index.html"));
 app.use(cors());
 
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "public", "index.html"));
+});
 
 //User Router
 const usersRouter = require("./routes/usersRoute");
@@ -54,6 +59,7 @@ const notifyFriendsAboutStatus = async (_user, _status) => {
 };
 //socket.io
 io.on("connection", (socket) => {
+  console.log("User Connected: ");
   socket.on("login", async (_user, _socketId) => {
     let user = await findUserById(_user.sub);
     if (!user) {
@@ -70,6 +76,7 @@ io.on("connection", (socket) => {
       await user.save();
     }
     io.to(_socketId).emit("setUserId", user);
+    console.log("User Connected: ", user.userId);
   });
 
   //Create New User

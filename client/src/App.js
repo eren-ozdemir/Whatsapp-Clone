@@ -1,9 +1,7 @@
 import Login from "./components/Login";
 import ChatUI from "./components/ChatUI";
-import useLocalStorage from "./hooks/useLocalStorage";
 import { io } from "socket.io-client";
 import { useState } from "react";
-import { useEffect } from "react";
 
 const socket = io("/");
 
